@@ -42,6 +42,8 @@ def get_model_data_at_point(x, y, grid_lon, grid_lat, dataset, lon_cell_size, la
   else:
     return np.nan
 
+    # zonal statistics
+
 def populate_regrid(size_x, size_y, grid_lon, grid_lat, dataset):
   '''
   Creates a lat/lon output grid based on an input dataset.
