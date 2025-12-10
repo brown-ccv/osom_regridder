@@ -1,4 +1,4 @@
-from import_raster import import_grid, import_dataset
+from file_input import import_grid, import_dataset
 from regrid import populate_regrid
 from output import create_image, save_image, save_dataset
 
