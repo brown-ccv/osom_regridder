@@ -5,11 +5,11 @@ def import_grid(grid_path):
   Extracts OSOM Grid data from a raw NC file.
   '''
   osom_grid = nc.Dataset(grid_path)
-  lon = osom_grid.variables['lon_rho'][:]
   lat = osom_grid.variables['lat_rho'][:]
+  lon = osom_grid.variables['lon_rho'][:]
   mask = osom_grid.variables['mask_rho'][:]
   bathymetry = osom_grid.variables['h'][:]
-  return ( lon, lat, mask, bathymetry )
+  return ( lat, lon, mask, bathymetry )
 
 def import_dataset(dataset_path, variable, surfaceOrBottom):
   '''

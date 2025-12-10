@@ -1,5 +1,7 @@
-from PIL import Image
 import numpy as np
+import netCDF4 as nc
+from PIL import Image
+from typing import Tuple
 
 def normalize_linear(value: float, input_scale_min: float, input_scale_max: float, output_scale_min: float, output_scale_max: float) -> float:
   """
@@ -17,8 +19,6 @@ def normalize_linear(value: float, input_scale_min: float, input_scale_max: floa
     """
   standard_normalization = (value - input_scale_min) / (input_scale_max - input_scale_min)
   return ((output_scale_max - output_scale_min) * standard_normalization) + output_scale_min
-
-from typing import Tuple
 
 def compute_normalization_scale(dataset: np.ndarray) -> Tuple[float, float]:
   """
@@ -60,8 +60,6 @@ def save_image(image: Image, image_path: str) -> None:
       None: Image is written to disk.
   """
   image.save(image_path)
-
-import netCDF4 as nc
 
 def save_dataset(dataset: np.ndarray, variable: str, file_path: str) -> None:
   """

@@ -13,7 +13,7 @@ output_size_x = 26
 output_size_y = 16
 
 if __name__ == "__main__":
-    lon, lat, mask, bathymetry = import_grid("data/osom_grid.nc")
+    lat, lon, mask, bathymetry = import_grid("data/osom_grid.nc")
     data = import_dataset(data_path, variable, surfaceOrBottom)
     data_at_timepoint = data[time_point]
     regridded = populate_regrid(output_size_x, output_size_y, lon, lat, data_at_timepoint)
