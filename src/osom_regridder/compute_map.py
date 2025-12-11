@@ -37,24 +37,28 @@ def determine_bounds(
     return (coordinate_min, coordinate_max, coordinate_range, cell_size)
 
 
-def compute_coordinate_indecies(coordinate_min, coordinate_max, coordinate_cell_size):
+def compute_coordinate_indecies(
+    coordinate_min: float, coordinate_max: float, coordinate_cell_size: float
+) -> np.ndarray:
     return np.arange(coordinate_min, coordinate_max, coordinate_cell_size)
 
 
-def compute_coordinate_distance(lat_a, lon_a, lat_b, lon_b):
+def compute_coordinate_distance(
+    lat_a: float, lon_a: float, lat_b: float, lon_b: float
+) -> float:
     return math.sqrt((abs(lat_a - lat_b) ** 2) + (abs(lon_a - lon_b) ** 2))
 
 
 def compute_distance_from_coordinate_to_osom_grid(
-    point_lat, point_lon, grid_lat, grid_lon
-):
+    point_lat: float, point_lon: float, grid_lat: np.ndarray, grid_lon: np.ndarray
+) -> np.ndarray:
     """
     create 2d array the size of etiher grid_lat or grid_lon.
     then, naive loop to determine the distance using compute_coordinate_distance.
     take the value and put it in the output array.
     return the output array.
     """
-    pass
+    return np.empty([1, 1])
 
 
 if __name__ == "__main__":

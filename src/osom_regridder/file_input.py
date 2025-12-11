@@ -1,7 +1,11 @@
 import netCDF4 as nc
+import numpy as np
+from typing import Tuple
 
 
-def import_grid(grid_path):
+def import_grid(
+    grid_path: str,
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """
     Extracts OSOM Grid data from a raw NC file.
     """
@@ -13,7 +17,9 @@ def import_grid(grid_path):
     return (lat, lon, mask, bathymetry)
 
 
-def import_dataset(dataset_path, variable, surfaceOrBottom):
+def import_dataset(
+    dataset_path: str, variable: str, surfaceOrBottom: str
+) -> np.ndarray:
     """
     Extracts data from a raw OSOM data file for a specific variable
     at *all* time points.
@@ -27,5 +33,4 @@ def import_dataset(dataset_path, variable, surfaceOrBottom):
 
 
 if __name__ == "__main__":
-    grid = import_grid("data/osom_grid.nc")
-    print(grid["lon"])
+    pass

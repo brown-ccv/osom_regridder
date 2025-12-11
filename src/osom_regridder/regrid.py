@@ -1,8 +1,16 @@
 import netCDF4 as nc
 import numpy as np
+from typing import Any, Tuple
 
 
-def get_coordinates_for_point(x, y, lon_cell_size, lat_cell_size, lon_min, lat_min):
+def get_coordinates_for_point(
+    x: int,
+    y: int,
+    lon_cell_size: float,
+    lat_cell_size: float,
+    lon_min: float,
+    lat_min: float,
+) -> Tuple[float, float, float, float]:
     """
     Determines the latitude and longitude bounds of a pixel in the output grid.
     """
@@ -19,7 +27,9 @@ def get_coordinates_for_point(x, y, lon_cell_size, lat_cell_size, lon_min, lat_m
     return (cell_lon_min, cell_lon_max, cell_lat_min, cell_lat_max)
 
 
-def get_data_for_points(x_mask, y_mask, dataset):
+def get_data_for_points(
+    x_mask: np.ndarray, y_mask: np.ndarray, dataset: np.ndarray
+) -> list[float]:
     """
     Determines the data for points determined to be within the bounds of output grid cell.
     """
@@ -31,8 +41,16 @@ def get_data_for_points(x_mask, y_mask, dataset):
 
 
 def get_model_data_at_point(
-    x, y, grid_lon, grid_lat, dataset, lon_cell_size, lat_cell_size, lon_min, lat_min
-):
+    x: int,
+    y: int,
+    grid_lon: np.ndarray,
+    grid_lat: np.ndarray,
+    dataset: np.ndarray,
+    lon_cell_size: float,
+    lat_cell_size: float,
+    lon_min: float,
+    lat_min: float,
+) -> float | np.floating[Any]:
     """
     Determines the output grid cell value based on values extracted from the dataset.
     """
@@ -49,10 +67,14 @@ def get_model_data_at_point(
     else:
         return np.nan
 
-        # zonal statistics
 
-
-def populate_regrid(size_x, size_y, grid_lon, grid_lat, dataset):
+def populate_regrid(
+    size_x: int,
+    size_y: int,
+    grid_lon: np.ndarray,
+    grid_lat: np.ndarray,
+    dataset: np.ndarray,
+) -> np.ndarray:
     """
     Creates a lat/lon output grid based on an input dataset.
 

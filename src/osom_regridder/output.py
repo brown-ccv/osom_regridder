@@ -47,7 +47,7 @@ def compute_normalization_scale(dataset: np.ndarray) -> Tuple[float, float]:
     return (np.min(values), np.max(values))
 
 
-def create_image(dataset, output_dim_x, output_dim_y):
+def create_image(dataset: np.ndarray, output_dim_x: int, output_dim_y: int) -> Image:
     """
     Transforms the dataset into a bitmap image. All NaN entries in the dataset are written as
     transparent pixels, and everything is normalized on a black -> purple color scale.
