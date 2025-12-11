@@ -32,5 +32,10 @@ def import_dataset(
         return dataset.variables[variable][:, -1, :, :]
 
 
+def import_regridded_dataset(dataset_path: str, variable: str) -> np.ndarray:
+    dataset = nc.Dataset(dataset_path)
+    return dataset.variables[variable][:]
+
+
 if __name__ == "__main__":
     pass
