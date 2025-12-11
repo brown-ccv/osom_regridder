@@ -12,7 +12,7 @@ import math
 import numpy as np
 from typing import Tuple
 
-from file_input import import_grid
+from .file_input import import_grid
 
 
 def determine_bounds(

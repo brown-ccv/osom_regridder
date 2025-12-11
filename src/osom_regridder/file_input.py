@@ -28,4 +28,4 @@ def import_dataset(dataset_path, variable, surfaceOrBottom):
 
 if __name__ == "__main__":
     grid = import_grid("data/osom_grid.nc")
-    print(grid[lon])
+    print(grid["lon"])

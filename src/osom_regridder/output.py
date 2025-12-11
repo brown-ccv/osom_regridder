@@ -1,6 +1,7 @@
 import numpy as np
 import netCDF4 as nc
-from PIL import Image
+from PIL import Image as img
+from PIL.Image import Image
 from typing import Tuple
 
 
@@ -51,9 +52,7 @@ def create_image(dataset, output_dim_x, output_dim_y):
     Transforms the dataset into a bitmap image. All NaN entries in the dataset are written as
     transparent pixels, and everything is normalized on a black -> purple color scale.
     """
-    image = Image.new(
-        mode="RGBA", size=(output_dim_x, output_dim_y), color=(0, 0, 0, 0)
-    )
+    image = img.new(mode="RGBA", size=(output_dim_x, output_dim_y), color=(0, 0, 0, 0))
     output_min, output_max = compute_normalization_scale(dataset)
     for x in range(output_dim_x):
         for y in range(output_dim_y):
@@ -94,7 +93,7 @@ def save_dataset(dataset: np.ndarray, variable: str, file_path: str) -> None:
     Returns:
       None: Dataset is written to disk.
     """
-    with nc.Dataset(file_path, "w", "NETCDF4") as output_file:
+    with nc.Dataset(file_path, "w") as output_file:
         output_file.createDimension("rows", dataset.shape[0])
         output_file.createDimension("cols", dataset.shape[1])
         data_var = output_file.createVariable(variable, "float32", ("rows", "cols"))
