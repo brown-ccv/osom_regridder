@@ -1,6 +1,9 @@
 [project]
 name = "osom-regridder"
 version = "0.1.0"
+authors = [
+    { name="Anna Murphy", email="anna_murphy1@brown.edu" }
+]
 description = "Transforms OSOM data from an internal grid system to a lat/lon grid."
 readme = "README.md"
 dependencies = [
