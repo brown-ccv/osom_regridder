@@ -15,7 +15,7 @@ dependencies = [
 ]
 
 [project.scripts]
-osom_regridder = "osom_regridder.__main__:main"
+osom_regridder = "osom_regridder.__main__:app"
 
 [dependency-groups]
 dev = [
