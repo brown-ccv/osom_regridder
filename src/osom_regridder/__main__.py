@@ -64,7 +64,7 @@ def regrid(
 
 @app.command()
 def tile():
-    pass
+    raise "Not Implemented."
 
 
 @app.command()
