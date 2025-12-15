@@ -2,10 +2,9 @@
 The command line interface for the OSOM regridding tool.
 
 Commands:
- - regrid: takes a file (and optional a grid dims), and runs the regrid process.
- - display: takes a regridded image and creates a basic image visualization for it.
- - tile: takes raw OSOM data and regrids it, and then formats it info a servable mbtiles file.
-   - option to perform this at 1 time point or ALL time points.
+ - regrid: Runs the regridding algorithm on a given file.
+ - display: Creates a PNG based on regridded data.
+ - tile: Creates a .mbtiles file from regridded data. Not yet implemented.
 
 """
 
