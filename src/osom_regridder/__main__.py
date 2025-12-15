@@ -64,7 +64,7 @@ def regrid(
 
 @app.command()
 def tile():
-    raise "Not Implemented."
+    raise NotImplementedError("Not Implemented.")
 
 
 @app.command()
