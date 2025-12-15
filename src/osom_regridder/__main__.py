@@ -39,16 +39,16 @@ class SurfaceOrBottom(str, Enum):
 def regrid(
     grid_path: str,
     dataset_path: str,
-    variable: Annotated[OSOMVariables, typer.Option()] = OSOMVariables.TEMP.value,
+    variable: Annotated[OSOMVariables, typer.Option()] = OSOMVariables.TEMP,
     surfaceOrBottom: Annotated[
         SurfaceOrBottom, typer.Option()
-    ] = SurfaceOrBottom.SURFACE.value,
+    ] = SurfaceOrBottom.SURFACE,
     timepoint: Annotated[int, typer.Option(help="Days since model inception.")] = 1,
     height: Annotated[int, typer.Option()] = default_height,
     width: Annotated[int, typer.Option()] = default_width,
 ):
     lat, lon, mask, bathymetry = import_grid(grid_path)
-    data = import_dataset(dataset_path, variable, surfaceOrBottom)
+    data = import_dataset(dataset_path, variable.value, surfaceOrBottom.value)
     data_at_timepoint = data[timepoint]
     regridded = populate_regrid(width, height, lon, lat, data_at_timepoint)
     # Use the input path but add variable and timepoint ID.
