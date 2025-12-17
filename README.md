@@ -8,7 +8,7 @@ The grid is transformed by creating a canvas in the output dimensions, and selec
 
 ## CLI
 
-This package builds a CLI to faciliate regridding of datasets. The CLI has the following commands:
+This package builds a CLI to facilitate regridding of datasets. The CLI has the following commands:
 
 - `regrid`: Runs the regridding algorithm on a given file.
 - `display`: Creates a PNG based on regridded data.
