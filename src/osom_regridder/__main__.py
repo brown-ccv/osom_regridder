@@ -10,7 +10,9 @@ Commands:
 
 import typer
 from enum import Enum
+from pathlib import Path
 from typing_extensions import Annotated
+
 from .file_input import import_grid, import_dataset, import_regridded_dataset
 from .regrid import populate_regrid
 from .output import create_image, save_image, save_dataset
@@ -52,10 +54,8 @@ def regrid(
     data_at_timepoint = data[timepoint]
     regridded = populate_regrid(width, height, lon, lat, data_at_timepoint)
     # Use the input path but add variable and timepoint ID.
-    output_path = (
-        "out/"
-        + ".".join(dataset_path.split("/")[-1].split(".")[:-1])
-        + f"_{variable.value}@{timepoint}.nc"
+    output_path = Path("out/") / (
+        Path(dataset_path).stem + f"_{variable.value}@{timepoint}.nc"
     )
     print("Saving regridded dataset to", output_path)
     save_dataset(regridded, variable, output_path)
@@ -72,9 +72,8 @@ def display(regridded_data_path: str, variable: str):
     width, height = dataset.shape
     image = create_image(dataset, width, height)
     # Use the input path but rename to change the extension .png
-    output_path = (
-        "out/" + ".".join(regridded_data_path.split("/")[-1].split(".")[:-1]) + ".png"
-    )
+    output_path = Path("out/") / (Path(regridded_data_path).stem + ".png")
+    print("Saving regridded image to", output_path)
     save_image(image, output_path)
 
 
