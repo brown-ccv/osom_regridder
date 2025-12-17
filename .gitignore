@@ -1,2 +1,6 @@
 __pycache__/
 .venv/
+.ruff_cache/
+src/*.egg-info/
+.mypy_cache/
+.pytest_cache/

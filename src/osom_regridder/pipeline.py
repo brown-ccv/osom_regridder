@@ -1,6 +1,6 @@
-from file_input import import_grid, import_dataset
-from regrid import populate_regrid
-from output import create_image, save_image, save_dataset
+from .file_input import import_grid, import_dataset
+from .regrid import populate_regrid
+from .output import create_image, save_image, save_dataset
 
 grid_path = "data/osom_grid.nc"
 data_path = "data/osom_data_6210.nc"
