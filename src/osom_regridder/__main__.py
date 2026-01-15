@@ -16,12 +16,29 @@ from typing_extensions import Annotated
 from .file_input import import_grid, import_dataset, import_regridded_dataset
 from .regrid import populate_regrid
 from .output import create_image, save_image, save_dataset
+from .compute_map import (
+    determine_bounds,
+    compute_coordinate_indecies,
+    compute_distance_from_coordinate_to_osom_grid,
+    get_distances_below_threshold,
+    compute_cell_sizes,
+)
+
+from .map_interface import (
+    initialize_grid,
+    close,
+    save_distances,
+    save_sizes,
+    load_grid,
+    get_distances,
+)
 
 app = typer.Typer(no_args_is_help=True)
 
 
 default_height = 16
 default_width = 26
+default_distance_threshold = 0.3
 
 
 class OSOMVariables(str, Enum):
@@ -75,6 +92,36 @@ def display(regridded_data_path: str, variable: str):
     output_path = Path("out/") / (Path(regridded_data_path).stem + ".png")
     print("Saving regridded image to", output_path)
     save_image(image, output_path)
+
+
+@app.command()
+def map(
+    grid_path: str,
+    height: Annotated[int, typer.Option()] = default_height,
+    width: Annotated[int, typer.Option()] = default_width,
+    threshold: Annotated[int, typer.Option()] = default_distance_threshold,
+):
+    lat, lon, mask, bathymetry = import_grid(grid_path)
+    lat_min, lat_max, lat_range, lat_cell_size = determine_bounds(lat, height)
+    lon_min, lon_max, lon_range, lon_cell_size = determine_bounds(lon, width)
+    lat_indecies = compute_coordinate_indecies(lat_min, lat_max, lat_cell_size)
+    lon_indecies = compute_coordinate_indecies(lon_min, lon_max, lon_cell_size)
+    sizes, sizes_grid = compute_cell_sizes(lat, lon)
+    lat_one = lat_indecies[0]
+    lon_one = lon_indecies[0]
+    distances = compute_distance_from_coordinate_to_osom_grid(
+        lat_one, lon_one, lat, lon
+    )
+    selected_distances = get_distances_below_threshold(distances, threshold)
+    grid_path = Path("out/") / f"remap_grid_{height}x{width}~{threshold}.sqlite"
+    grid = initialize_grid(grid_path)
+    save_distances(grid, 0, 0, selected_distances)
+    save_sizes(grid, sizes)
+    close(grid)
+    loaded_grid = load_grid(grid_path)
+    query_result = get_distances(loaded_grid, 0, 0)
+    print(query_result)
+    close(grid)
 
 
 if __name__ == "__main__":
