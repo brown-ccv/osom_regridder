@@ -30,9 +30,9 @@ def create_meshgrid(
     Parameters:
         grid_size_x (int): Mesh size in X (longitude) dimension.
         grid_size_y (int): Mesh size in Y (latitude) dimension.
-        grid_bound_min_x (float): Minumum X (longitude) bound.
+        grid_bound_min_x (float): Minimum X (longitude) bound.
         grid_bound_max_x (float): Maximum X (longitude) bound.
-        grid_bound_min_y (float): Minumum Y (latitude) bound.
+        grid_bound_min_y (float): Minimum Y (latitude) bound.
         grid_bound_max_y (float): Maximum Y (latitude) bound.
 
     Returns:
