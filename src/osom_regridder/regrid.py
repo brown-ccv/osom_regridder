@@ -23,7 +23,7 @@ def create_meshgrid(
     grid_bound_max_x: float,
     grid_bound_min_y: float,
     grid_bound_max_y: float,
-):
+) -> tuple[np.ndarray, np.ndarray]:
     xi = np.linspace(grid_bound_min_x, grid_bound_max_x, grid_size_x)
     yi = np.linspace(grid_bound_min_y, grid_bound_max_y, grid_size_y)
     return np.meshgrid(xi, yi)
