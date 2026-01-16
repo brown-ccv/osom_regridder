@@ -42,7 +42,7 @@ def create_meshgrid(
     return np.meshgrid(xi, yi)
 
 
-def mask_data(data: np.ndarray, mask: np.ndarray):
+def mask_data(data: np.ndarray, mask: np.ndarray) -> np.ndarray:
     """
     Helper function to apply a mask to data prior to regridding.
 
@@ -77,7 +77,10 @@ def grid_transform(
         np.ndarray: Regridded data matching the shape of the meshgrid.
     """
     return griddata(
-        (lon2d.flatten(), lat2d.flatten()), mask_data(data2d, mask).flatten(), meshgrid
+        (lon2d.flatten(), lat2d.flatten()),
+        mask_data(data2d, mask).flatten(),
+        meshgrid,
+        method="linear",
     )
 
 
@@ -86,7 +89,7 @@ def regrid_timepoint(
     dataset: np.ndarray,
     dimensions: tuple[int, int],
     timepoint: int,
-):
+) -> np.ndarray:
     """
     Helper function to regrid a dataset at a specific timepoint.
 
@@ -111,7 +114,7 @@ def regrid_dataset(
     grid: tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray],
     dataset: np.ndarray,
     dimensions: tuple[int, int],
-):
+) -> np.ndarray:
     """
     Helper function to regrid an entire dataset
 
