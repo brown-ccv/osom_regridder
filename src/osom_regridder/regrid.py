@@ -74,4 +74,4 @@ def regrid_dataset(
         output_dataset[timepoint] = regridded_data
         print(f"{timepoint + 1}/{timepoints}")
     print(f"Finished in {time.time() - start}")
-    return regridded_data
+    return output_dataset
