@@ -17,7 +17,6 @@ from .file_input import import_grid, import_dataset, import_regridded_dataset
 from .regrid import create_meshgrid, grid_transform, regrid_timepoint, regrid_dataset
 
 # from .regrid import populate_regrid
-from .constants import LON_W, LON_E, LAT_N, LAT_S
 from .output import create_image, save_image, save_dataset_2d, save_dataset_3d
 # from .compute_map import (
 #    determine_bounds,
