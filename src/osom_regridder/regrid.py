@@ -11,7 +11,6 @@ Functions:
 
 import numpy as np
 from scipy.interpolate import griddata
-import time
 
 from .constants import LON_W, LON_E, LAT_N, LAT_S
 
