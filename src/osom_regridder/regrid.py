@@ -2,7 +2,7 @@
 Module to regrid using scipy's griddata function
 
 Functions:
-  create_meshgrid: A helper function to create much used during interpolation.
+  create_meshgrid: A helper function to create a meshgrid used during interpolation.
   mask_data: A helper function to apply a mask prior to regridding.
   grid_transform: Transforms dataset data onto output grid.
   regrid_at_timepoint: Pipeline function to regrid data at a timepoint.
