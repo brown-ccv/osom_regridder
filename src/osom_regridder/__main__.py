@@ -14,33 +14,34 @@ from pathlib import Path
 from typing_extensions import Annotated
 
 from .file_input import import_grid, import_dataset, import_regridded_dataset
-from .regrid import create_meshgrid, grid_transform
-#from .regrid import populate_regrid
+from .regrid import create_meshgrid, grid_transform, regrid_timepoint, regrid_dataset
+
+# from .regrid import populate_regrid
 from .constants import LON_W, LON_E, LAT_N, LAT_S
-from .output import create_image, save_image, save_dataset
-#from .compute_map import (
+from .output import create_image, save_image, save_dataset_2d, save_dataset_3d
+# from .compute_map import (
 #    determine_bounds,
 #    compute_coordinate_indecies,
 #    compute_distance_from_coordinate_to_osom_grid,
 #    get_distances_below_threshold,
 #    compute_cell_sizes,
-#)
+# )
 
-#from .map_interface import (
+# from .map_interface import (
 #    initialize_grid,
 #    close,
 #    save_distances,
 #    save_sizes,
 #    load_grid,
 #    get_distances,
-#)
+# )
 
 app = typer.Typer(no_args_is_help=True)
 
 
 default_height = 160
 default_width = 260
-#default_distance_threshold = 0.3
+# default_distance_threshold = 0.3
 
 
 class OSOMVariables(str, Enum):
@@ -56,8 +57,8 @@ class SurfaceOrBottom(str, Enum):
     BOTTOM = "bottom"
 
 
-#@app.command()
-#def regrid(
+# @app.command()
+# def regrid(
 #    grid_path: str,
 #    dataset_path: str,
 #    variable: Annotated[OSOMVariables, typer.Option()] = OSOMVariables.TEMP,
@@ -67,7 +68,7 @@ class SurfaceOrBottom(str, Enum):
 #    timepoint: Annotated[int, typer.Option(help="Days since model inception.")] = 1,
 #    height: Annotated[int, typer.Option()] = default_height,
 #    width: Annotated[int, typer.Option()] = default_width,
-#):
+# ):
 #    lat, lon, mask, bathymetry = import_grid(grid_path)
 #    data = import_dataset(dataset_path, variable.value, surfaceOrBottom.value)
 #    data_at_timepoint = data[timepoint]
@@ -80,8 +81,32 @@ class SurfaceOrBottom(str, Enum):
 #    save_dataset(regridded, variable, output_path)
 
 
+# @app.command()
+# def regrid(
+#   grid_path: str,
+#    dataset_path: str,
+#    variable: Annotated[OSOMVariables, typer.Option()] = OSOMVariables.TEMP,
+#    surface_or_bottom: Annotated[
+#        SurfaceOrBottom, typer.Option()
+#    ] = SurfaceOrBottom.SURFACE,
+#    timepoint: Annotated[int, typer.Option(help="Days since model inception.")] = 1,
+#    height: Annotated[int, typer.Option()] = default_height,
+#    width: Annotated[int, typer.Option()] = default_width,
+# ):
+#    lat, lon, mask, bathymetry = import_grid(grid_path)
+#   data_at_timepoint = data[timepoint]
+#    meshgrid = create_meshgrid(width, height, LON_W, LON_E, LAT_N, LAT_S)
+#    regridded = grid_transform(lon, lat, data_at_timepoint, meshgrid, mask)
+#    # Use the input path but add variable and timepoint ID.
+#    output_path = Path("out/") / (
+#        Path(dataset_path).stem + f"_{variable.value}@{timepoint}.nc"
+#    )
+#    print("Saving regridded dataset to", output_path)
+#    save_dataset(regridded, variable, output_path)
+
+
 @app.command()
-def regrid(
+def regrid_at_timepoint(
     grid_path: str,
     dataset_path: str,
     variable: Annotated[OSOMVariables, typer.Option()] = OSOMVariables.TEMP,
@@ -92,17 +117,36 @@ def regrid(
     height: Annotated[int, typer.Option()] = default_height,
     width: Annotated[int, typer.Option()] = default_width,
 ):
-    lat, lon, mask, bathymetry = import_grid(grid_path)
-    data = import_dataset(dataset_path, variable.value, surface_or_bottom.value)
-    data_at_timepoint = data[timepoint]
-    meshgrid = create_meshgrid(width, height, LON_W, LON_E, LAT_N, LAT_S)
-    regridded = grid_transform(lon, lat, data_at_timepoint, meshgrid, mask)
-    # Use the input path but add variable and timepoint ID.
+    grid = import_grid(grid_path)
+    dataset = import_dataset(dataset_path, variable.value, surface_or_bottom.value)
+    regridded = regrid_timepoint(grid, dataset, (width, height), timepoint)
+
     output_path = Path("out/") / (
         Path(dataset_path).stem + f"_{variable.value}@{timepoint}.nc"
     )
     print("Saving regridded dataset to", output_path)
-    save_dataset(regridded, variable, output_path)
+    save_dataset_2d(regridded, variable, output_path)
+
+
+@app.command()
+def regrid(
+    grid_path: str,
+    dataset_path: str,
+    variable: Annotated[OSOMVariables, typer.Option()] = OSOMVariables.TEMP,
+    surface_or_bottom: Annotated[
+        SurfaceOrBottom, typer.Option()
+    ] = SurfaceOrBottom.SURFACE,
+    height: Annotated[int, typer.Option()] = default_height,
+    width: Annotated[int, typer.Option()] = default_width,
+):
+    grid = import_grid(grid_path)
+    dataset = import_dataset(dataset_path, variable.value, surface_or_bottom.value)
+    regridded = regrid_dataset(grid, dataset, (width, height))
+
+    output_path = Path("out/") / (Path(dataset_path).stem + f"_{variable.value}.nc")
+    print("Saving regridded dataset to", output_path)
+    save_dataset_3d(test_data, variable.value, output_path)
+
 
 @app.command()
 def tile():
@@ -120,13 +164,13 @@ def display(regridded_data_path: str, variable: str):
     save_image(image, output_path)
 
 
-#@app.command()
-#def map(
+# @app.command()
+# def map(
 #    grid_path: str,
 #    height: Annotated[int, typer.Option()] = default_height,
 #    width: Annotated[int, typer.Option()] = default_width,
 ##    threshold: Annotated[int, typer.Option()] = default_distance_threshold,
-#):
+# ):
 #    lat, lon, mask, bathymetry = import_grid(grid_path)
 #    lat_min, lat_max, lat_range, lat_cell_size = determine_bounds(lat, height)
 #    lon_min, lon_max, lon_range, lon_cell_size = determine_bounds(lon, width)
