@@ -68,7 +68,7 @@ def grid_transform(
     Function to apply regrid transformation to the dataset.
 
     Parameters:
-        lon2d (np.ndarray): 2D array of Longitutde points in the input dataset.
+        lon2d (np.ndarray): 2D array of Longitude points in the input dataset.
         lat2d (np.ndarray): 2D array of Latitude points in the input dataset.
         data2d (np.ndarray): 2D array of data to be regridded.
         meshgrid (tuple[np.ndarray, np.ndarray]): A meshgrid of the desired output size. See: create_meshgrid
