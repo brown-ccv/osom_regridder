@@ -145,7 +145,7 @@ def regrid(
 
     output_path = Path("out/") / (Path(dataset_path).stem + f"_{variable.value}.nc")
     print("Saving regridded dataset to", output_path)
-    save_dataset_3d(test_data, variable.value, output_path)
+    save_dataset_3d(regridded, variable.value, output_path)
 
 
 @app.command()
