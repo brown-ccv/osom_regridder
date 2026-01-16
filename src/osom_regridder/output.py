@@ -16,11 +16,11 @@ def normalize_linear(
     Utility function to linearly normalize model data for the creation of output images.
 
     Parameters:
-      value (float): The value to be normalized.
-      input_scale_min (float): The minimum value of the input range.
-      input_scale_max (float): The maximum value of the input range.
-      output_scale_min (float): The minimum value of the output range.
-      output_scale_max (float): The maximum value of the output range.
+        value (float): The value to be normalized.
+        input_scale_min (float): The minimum value of the input range.
+        input_scale_max (float): The maximum value of the input range.
+        output_scale_min (float): The minimum value of the output range.
+        output_scale_max (float): The maximum value of the output range.
 
     Returns:
         float: The normalized value scaled to the output range.
