@@ -52,7 +52,6 @@ def regrid_timepoint(
     lat, lon, mask, bathymetry = grid
     width, height = dimensions
     meshgrid = create_meshgrid(width, height, LON_W, LON_E, LAT_N, LAT_S)
-    print(dataset.shape)
     data_at_timepoint = dataset[timepoint]
     regridded_data = grid_transform(lon, lat, data_at_timepoint, meshgrid, mask)
     return regridded_data
