@@ -18,14 +18,14 @@ def import_grid(
 
 
 def import_dataset(
-    dataset_path: str, variable: str, surfaceOrBottom: str
+    dataset_path: str, variable: str, surface_or_bottom: str
 ) -> np.ndarray:
     """
     Extracts data from a raw OSOM data file for a specific variable
     at *all* time points.
     """
     dataset = nc.Dataset(dataset_path)
-    if surfaceOrBottom == "bottom":
+    if surface_or_bottom == "bottom":
         return dataset.variables[variable][:, 0, :, :]
     else:
         # Surface data

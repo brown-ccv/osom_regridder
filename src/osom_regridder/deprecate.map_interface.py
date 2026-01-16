@@ -71,6 +71,7 @@ def save_distances(
     result = cursor.executemany(INSERT_DISTANCE_VALUE_TEMPLATE, rows)
     connection.commit()
 
+
 def save_sizes(
     connection: sqlite3.Connection, sizes: list[tuple[int, int, int, int, int]]
 ):

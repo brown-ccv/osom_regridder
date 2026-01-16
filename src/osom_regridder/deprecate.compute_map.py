@@ -96,7 +96,7 @@ def compute_cell_sizes(lat_grid: np.ndarray, lon_grid: np.ndarray):
             x_next = x - 1 if x == x_range - 1 else x + 1
             width = Math.abs(lat_grid[x][y] - lat_grid[x_next][y])
             height = Math.abs(lon_grid[x][y] - lon_grid[x][y_next])
-            size =  (width + height) / 2
+            size = (width + height) / 2
             cell_sizes.append((x, y, width, height, size))
             sizes_grid[x][y] = (width, height, size)
     return cell_sizes, sizes_grid
@@ -104,17 +104,14 @@ def compute_cell_sizes(lat_grid: np.ndarray, lon_grid: np.ndarray):
 
 def compute_distance_threshold(distance_grid: np.ndarray, sizes: np.ndarray):
     # algorithm:
-    # given x, y, find the width/heigh of the input grid cell. 
+    # given x, y, find the width/heigh of the input grid cell.
     # find the max and min sizes for the whole grid
     # linearly interpolate with size of the selected cell onto [0.5,1.5] scale
     # multiple the height of the selected grid cell by the interpolated coefficient
     # select all distance values less than the selected coefficient
-    x, y, min_distance = distance_grid[np.argmin(distance_grid[:,2])]
-    min_size = np.min(npsizes[:,4])
-    max_size = np.max(npsizes[:,4])
-    
-    
-
+    x, y, min_distance = distance_grid[np.argmin(distance_grid[:, 2])]
+    min_size = np.min(npsizes[:, 4])
+    max_size = np.max(npsizes[:, 4])
 
 
 if __name__ == "__main__":
