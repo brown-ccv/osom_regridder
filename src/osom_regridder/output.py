@@ -16,11 +16,11 @@ def normalize_linear(
     Utility function to linearly normalize model data for the creation of output images.
 
     Parameters:
-      value (float): The value to be normalized.
-      input_scale_min (float): The minimum value of the input range.
-      input_scale_max (float): The maximum value of the input range.
-      output_scale_min (float): The minimum value of the output range.
-      output_scale_max (float): The maximum value of the output range.
+        value (float): The value to be normalized.
+        input_scale_min (float): The minimum value of the input range.
+        input_scale_max (float): The maximum value of the input range.
+        output_scale_min (float): The minimum value of the output range.
+        output_scale_max (float): The maximum value of the output range.
 
     Returns:
         float: The normalized value scaled to the output range.
@@ -81,9 +81,9 @@ def save_image(image: Image, image_path: str) -> None:
     image.save(image_path)
 
 
-def save_dataset(dataset: np.ndarray, variable: str, file_path: str) -> None:
+def save_dataset_2d(dataset: np.ndarray, variable: str, file_path: str) -> None:
     """
-    Utility function to write the dataset to disk as a NetCDF file.
+    Utility function to write a 2d dataset to disk as a NetCDF file.
 
     Parameters:
       dataset (np.ndarray): Regridded OSOM dataset.
@@ -94,7 +94,29 @@ def save_dataset(dataset: np.ndarray, variable: str, file_path: str) -> None:
       None: Dataset is written to disk.
     """
     with nc.Dataset(file_path, "w") as output_file:
-        output_file.createDimension("rows", dataset.shape[0])
-        output_file.createDimension("cols", dataset.shape[1])
-        data_var = output_file.createVariable(variable, "float32", ("rows", "cols"))
+        output_file.createDimension("lat", dataset.shape[0])
+        output_file.createDimension("lon", dataset.shape[1])
+        data_var = output_file.createVariable(variable, "float32", ("lat", "lon"))
+        data_var[:] = dataset
+
+
+def save_dataset_3d(dataset: np.ndarray, variable: str, file_path: str) -> None:
+    """
+    Utility function to write a 3d dataset (regridded at each timepoint) to disk as a NetCDF file.
+
+    Parameters:
+      dataset (np.ndarray): Regridded OSOM dataset.
+      variable (str): Variable being saved in this NetCDF file.
+      file_path (str): Path where the dataset will be written.
+
+    Returns:
+      None: Dataset is written to disk.
+    """
+    with nc.Dataset(file_path, "w") as output_file:
+        output_file.createDimension("time", dataset.shape[0])
+        output_file.createDimension("lat", dataset.shape[1])
+        output_file.createDimension("lon", dataset.shape[2])
+        data_var = output_file.createVariable(
+            variable, "float32", ("time", "lat", "lon")
+        )
         data_var[:] = dataset

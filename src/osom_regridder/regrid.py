@@ -1,120 +1,137 @@
-import netCDF4 as nc
+"""
+Module to regrid using scipy's griddata function
+
+Functions:
+  create_meshgrid: A helper function to create a meshgrid used during interpolation.
+  mask_data: A helper function to apply a mask prior to regridding.
+  grid_transform: Transforms dataset data onto output grid.
+  regrid_timepoint: Pipeline function to regrid data at a timepoint.
+
+"""
+
 import numpy as np
-from typing import Any, Tuple
+from scipy.interpolate import griddata
+
+from .constants import LON_W, LON_E, LAT_N, LAT_S
 
 
-def get_coordinates_for_point(
-    x: int,
-    y: int,
-    lon_cell_size: float,
-    lat_cell_size: float,
-    lon_min: float,
-    lat_min: float,
-) -> Tuple[float, float, float, float]:
+def create_meshgrid(
+    grid_size_x: int,
+    grid_size_y: int,
+    grid_bound_min_x: float,
+    grid_bound_max_x: float,
+    grid_bound_min_y: float,
+    grid_bound_max_y: float,
+) -> tuple[np.ndarray, np.ndarray]:
     """
-    Determines the latitude and longitude bounds of a pixel in the output grid.
+    Helper function to create a meshgrid used during interpolation.
+
+    Parameters:
+        grid_size_x (int): Mesh size in X (longitude) dimension.
+        grid_size_y (int): Mesh size in Y (latitude) dimension.
+        grid_bound_min_x (float): Minimum X (longitude) bound.
+        grid_bound_max_x (float): Maximum X (longitude) bound.
+        grid_bound_min_y (float): Minimum Y (latitude) bound.
+        grid_bound_max_y (float): Maximum Y (latitude) bound.
+
+    Returns:
+        tuple[np.ndarray, np.ndarray]: A tuple of arrays representing the full output space.
     """
-    # Note (AM): This is a method that's a little flawed right now. This will collect
-    # all points enclosed by a lat/lon region. For low density regriddings, it's
-    # totally okay, but for higher density ones it's a little worse. For example, it's
-    # possible to imagine a dataset pixel that encloses entirely a regridding pixel, which
-    # would be skipped under the current algorithm. In effect, this only detects the *edges*
-    # of dataset pixels, not the pixels themselves.
-    cell_lon_min = (x * lon_cell_size) + lon_min
-    cell_lon_max = ((x + 1) * lon_cell_size) + lon_min
-    cell_lat_min = (y * lat_cell_size) + lat_min
-    cell_lat_max = ((y + 1) * lat_cell_size) + lat_min
-    return (cell_lon_min, cell_lon_max, cell_lat_min, cell_lat_max)
+    xi = np.linspace(grid_bound_min_x, grid_bound_max_x, grid_size_x)
+    yi = np.linspace(grid_bound_min_y, grid_bound_max_y, grid_size_y)
+    return np.meshgrid(xi, yi)
 
 
-def get_data_for_points(
-    x_mask: np.ndarray, y_mask: np.ndarray, dataset: np.ndarray
-) -> list[float]:
+def mask_data(data: np.ndarray, mask: np.ndarray) -> np.ndarray:
     """
-    Determines the data for points determined to be within the bounds of output grid cell.
+    Helper function to apply a mask to data prior to regridding.
+
+    Parameters:
+        data (np.ndarray): Raw dataset.
+        mask (np.ndarray): Mask being applied.
+
+    Returns:
+        np.ndarray: Data with mask applied.
     """
-    collected_data = []
-    for i in range(len(x_mask)):
-        data = dataset[x_mask[i]][y_mask[i]]
-        collected_data.append(data)
-    return collected_data
+    return np.where(mask, data, np.nan)
 
 
-def get_model_data_at_point(
-    x: int,
-    y: int,
-    grid_lon: np.ndarray,
-    grid_lat: np.ndarray,
-    dataset: np.ndarray,
-    lon_cell_size: float,
-    lat_cell_size: float,
-    lon_min: float,
-    lat_min: float,
-) -> float | np.floating[Any]:
+def grid_transform(
+    lon2d: np.ndarray,
+    lat2d: np.ndarray,
+    data2d: np.ndarray,
+    meshgrid: tuple[np.ndarray, np.ndarray],
+    mask: np.ndarray,
+):
     """
-    Determines the output grid cell value based on values extracted from the dataset.
+    Function to apply regrid transformation to the dataset.
+
+    Parameters:
+        lon2d (np.ndarray): 2D array of Longitude points in the input dataset.
+        lat2d (np.ndarray): 2D array of Latitude points in the input dataset.
+        data2d (np.ndarray): 2D array of data to be regridded.
+        meshgrid (tuple[np.ndarray, np.ndarray]): A meshgrid of the desired output size. See: create_meshgrid
+        mask (np.ndarray): A mask to be applied to the dataset prior to regridding.
+
+    Returns:
+        np.ndarray: Regridded data matching the shape of the meshgrid.
     """
-    cell_lon_min, cell_lon_max, cell_lat_min, cell_lat_max = get_coordinates_for_point(
-        x, y, lon_cell_size, lat_cell_size, lon_min, lat_min
+    return griddata(
+        (lon2d.flatten(), lat2d.flatten()),
+        mask_data(data2d, mask).flatten(),
+        meshgrid,
+        method="linear",
     )
-    lon_mask = (grid_lon > cell_lon_min) & (grid_lon < cell_lon_max)
-    lat_mask = (grid_lat > cell_lat_min) & (grid_lat < cell_lat_max)
-    x_mask, y_mask = np.where(lon_mask & lat_mask)
-    bounded_points = get_data_for_points(x_mask, y_mask, dataset)
-    if len(bounded_points) >= 1:
-        averaged_points = np.average(bounded_points)
-        return averaged_points
-    else:
-        return np.nan
 
 
-def populate_regrid(
-    size_x: int,
-    size_y: int,
-    grid_lon: np.ndarray,
-    grid_lat: np.ndarray,
+def regrid_timepoint(
+    grid: tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray],
     dataset: np.ndarray,
+    dimensions: tuple[int, int],
+    timepoint: int,
 ) -> np.ndarray:
     """
-    Creates a lat/lon output grid based on an input dataset.
+    Helper function to regrid a dataset at a specific timepoint.
 
-    At each output grid cell value, dataset points are collected if they fall within lat/lon
-    bounds, and averaged together to give a single output value. This is repeated across the
-    entire output grid to create a regridded raster.
+    Parameters:
+        grid (tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]): Grid information -- output of file_input.import_grid
+        dataset (np.ndarray): Dataset to be processed.
+        dimensions (tuple[int, int]): Output dimensions in width (longitude) / height (latitude)
+        timepoint (int): Timepoint to be processed (index into processed dataset)
+
+    Returns:
+        np.ndarray: Regridded dataset.
     """
-    regrid = np.empty((size_x, size_y))
-    regrid.fill(np.nan)
+    lat, lon, mask, bathymetry = grid
+    width, height = dimensions
+    meshgrid = create_meshgrid(width, height, LON_W, LON_E, LAT_N, LAT_S)
+    data_at_timepoint = dataset[timepoint]
+    regridded_data = grid_transform(lon, lat, data_at_timepoint, meshgrid, mask)
+    return regridded_data
 
-    lat_min = np.min(grid_lat)
-    lat_max = np.max(grid_lat)
-    lon_min = np.min(grid_lon)
-    lon_max = np.max(grid_lon)
 
-    lat_range = lat_max - lat_min
-    lon_range = lon_max - lon_min
+def regrid_dataset(
+    grid: tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray],
+    dataset: np.ndarray,
+    dimensions: tuple[int, int],
+) -> np.ndarray:
+    """
+    Helper function to regrid an entire dataset
 
-    lat_cell_size = lat_range / size_y
-    lon_cell_size = lon_range / size_x
+    Parameters:
+        grid (tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]): Grid information -- output of file_input.import_grid
+        dataset (np.ndarray): Dataset to be processed.
+        dimensions (tuple[int, int]): Output dimensions in width (longitude) / height (latitude)
 
-    # Note (AM): This is a prime candidate for parallelization / other optimization. Iterating
-    # through all x / y coordinates is a naive O(N^2) implementation. And while it works as a
-    # proof of concept, it can probably be improved prior to processing an entire dataset. The
-    # value for each grid cell can be computed in parallel, potentially speeding up this process
-    # dramatically. Additionally, we know that many output grid cells will simply not have data.
-    # There might be a heuristic we can use to determine if certain lat / lon ranges can be skipped
-    # outright, reducing the effective value of N for the time complexity of this function.
-    for x in range(size_x):
-        # print(x, "/", size_x)
-        for y in range(size_y):
-            regrid[x][y] = get_model_data_at_point(
-                x,
-                y,
-                grid_lon,
-                grid_lat,
-                dataset,
-                lon_cell_size,
-                lat_cell_size,
-                lon_min,
-                lat_min,
-            )
-    return regrid
+    Returns:
+        np.ndarray: Regridded dataset at all timepoints.
+    """
+    lat, lon, mask, bathymetry = grid
+    width, height = dimensions
+    meshgrid = create_meshgrid(width, height, LON_W, LON_E, LAT_N, LAT_S)
+    timepoints = dataset.shape[0]
+    output_dataset = np.zeros((timepoints, height, width))
+    for timepoint in range(timepoints):
+        regridded_data = grid_transform(lon, lat, dataset[timepoint], meshgrid, mask)
+        output_dataset[timepoint] = regridded_data
+    return output_dataset
