@@ -23,7 +23,6 @@ app = typer.Typer(no_args_is_help=True)
 
 default_height = 160
 default_width = 260
-# default_distance_threshold = 0.3
 
 
 class OSOMVariables(str, Enum):
@@ -92,8 +91,8 @@ def display(regridded_data_path: str, variable: str):
     dataset = import_regridded_dataset(regridded_data_path, variable)
     width, height = dataset.shape
     image = create_image(dataset, width, height)
-    # Use the input path but rename to change the extension .png
-    output_path = Path("out/") / (Path(regridded_data_path).stem + ".png")
+    # Use the input path but rename to change the extension .tif
+    output_path = Path("out/") / (Path(regridded_data_path).stem + ".tif")
     print("Saving regridded image to", output_path)
     save_image(image, output_path)
 

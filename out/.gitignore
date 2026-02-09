@@ -2,3 +2,5 @@
 *.png
 *.tiff
 *.sqlite
+*.tif
+*.mbtiles
