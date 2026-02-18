@@ -1,70 +1,113 @@
 import numpy as np
 import netCDF4 as nc
+import cmocean
+import math
+
 from PIL import Image as img
 from PIL.Image import Image
+
 from typing import Tuple
+from .utils import compute_dataset_bounds, normalize_linear
+from .constants import OSOMVariables
+
+def get_colormap(cm_name: str):
+    if cm_name == "thermal":
+        return cmocean.cm.thermal
+    elif cm_name == "haline":
+        return cmocean.cm.haline
+    elif cm_name == "solar":
+        return cmocean.cm.solar
+    elif cm_name == "ice":
+        return cmocean.cm.ice
+    elif cm_name == "gray":
+        return cmocean.cm.gray
+    elif cm_name == "oxy":
+        return cmocean.cm.oxy
+    elif cm_name == "deep":
+        return cmocean.cm.deep
+    elif cm_name == "dense":
+        return cmocean.cm.dense
+    elif cm_name == "algae":
+        return cmocean.cm.algae
+    elif cm_name == "matter":
+        return cmocean.cm.matter
+    elif cm_name == "turbid":
+        return cmocean.cm.turbid
+    elif cm_name == "speed":
+        return cmocean.cm.speed
+    elif cm_name == "amp":
+        return cmocean.cm.amp
+    elif cm_name == "tempo":
+        return cmocean.cm.tempo
+    elif cm_name == "rain":
+        return cmocean.cm.rain
+    elif cm_name == "phase":
+        return cmocean.cm.phase
+    elif cm_name == "topo":
+        return cmocean.cm.topo
+    elif cm_name == "balance":
+        return cmocean.cm.balance
+    elif cm_name == "delta":
+        return cmocean.cm.delta
+    elif cm_name == "curl":
+        return cmocean.cm.curl
+    elif cm_name == "diff":
+        return cmocean.cm.diff
+    elif cm_name == "tarn":
+        return cmocean.cm.tarn
+    else:
+        return cmocean.cm.thermal
 
 
-def normalize_linear(
-    value: float,
-    input_scale_min: float,
-    input_scale_max: float,
-    output_scale_min: float,
-    output_scale_max: float,
-) -> float:
-    """
-    Utility function to linearly normalize model data for the creation of output images.
+def get_colormap_for_variable(variable: str):
+    if variable == OSOMVariables.TEMP:
+        return cmocean.cm.thermal
+    if variable == OSOMVariables.SALT:
+        return cmocean.cm.haline
+    #if variable == OSOMVariables.ZETA:
+    #    pass
+    if variable == OSOMVariables.UBAR_EAST:
+        return cmocean.cm.dense
+    if variable == OSOMVariables.UBAR_WEST:
+        return cmocean.cm.dense
+    if variable == "bathymetry":
+        return cmocean.cm.deep
+    # Default to the Ice colormap.
+    return cmocean.cm.ice
 
-    Parameters:
-        value (float): The value to be normalized.
-        input_scale_min (float): The minimum value of the input range.
-        input_scale_max (float): The maximum value of the input range.
-        output_scale_min (float): The minimum value of the output range.
-        output_scale_max (float): The maximum value of the output range.
-
-    Returns:
-        float: The normalized value scaled to the output range.
-    """
-    standard_normalization = (value - input_scale_min) / (
-        input_scale_max - input_scale_min
-    )
-    return (
-        (output_scale_max - output_scale_min) * standard_normalization
-    ) + output_scale_min
-
-
-def compute_normalization_scale(dataset: np.ndarray) -> Tuple[float, float]:
-    """
-    Determines the minimum and maximum values of the processed dataset.
-
-    Parameters:
-      dataset (np.ndarray): A regridded OSOM dataset presented as a 2D NumPy array.
-
-    Returns:
-      Tuple[float, float]: A tuple containing the minimum and maximum values of the dataset.
-    """
-    values = np.unique(dataset[~np.isnan(dataset)])
-    return (np.min(values), np.max(values))
-
-
-def create_image(dataset: np.ndarray, output_dim_x: int, output_dim_y: int) -> Image:
+def create_image(
+    dataset: np.ndarray,
+    output_dim_x: int,
+    output_dim_y: int,
+    variable: str,
+    visualization_min: float,
+    visualization_max: float,
+) -> Image:
     """
     Transforms the dataset into a bitmap image. All NaN entries in the dataset are written as
     transparent pixels, and everything is normalized on a black -> purple color scale.
     """
     image = img.new(mode="RGBA", size=(output_dim_x, output_dim_y), color=(0, 0, 0, 0))
-    output_min, output_max = compute_normalization_scale(dataset)
+    cmap = get_colormap_for_variable(variable)
+    #cmap = get_colormap(cm_name)
     for x in range(output_dim_x):
         for y in range(output_dim_y):
             value = dataset[x][y]
             if not np.isnan(value):
-                color_as_value = int(
-                    normalize_linear(value, output_min, output_max, 0, 255)
+                normalized_value = normalize_linear(
+                    value, visualization_min, visualization_max, 0, 1
                 )
+                r, g, b, a = cmap(normalized_value)
                 image.putpixel(
-                    (x, output_dim_y - 1 - y), (color_as_value, 0, color_as_value, 255)
+                    (x, output_dim_y - 1 - y),
+                    (
+                        math.floor(r * 255),
+                        math.floor(g * 255),
+                        math.floor(b * 255),
+                        128,
+                    ),
                 )
-    return image
+    return image.transpose(img.ROTATE_270)
 
 
 def save_image(image: Image, image_path: str) -> None:
