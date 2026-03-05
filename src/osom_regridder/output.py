@@ -10,6 +10,7 @@ from typing import Tuple
 from .utils import compute_dataset_bounds, normalize_linear
 from .constants import OSOMVariables
 
+
 def get_colormap(cm_name: str):
     if cm_name == "thermal":
         return cmocean.cm.thermal
@@ -64,7 +65,7 @@ def get_colormap_for_variable(variable: str):
         return cmocean.cm.thermal
     if variable == OSOMVariables.SALT:
         return cmocean.cm.haline
-    #if variable == OSOMVariables.ZETA:
+    # if variable == OSOMVariables.ZETA:
     #    pass
     if variable == OSOMVariables.UBAR_EAST:
         return cmocean.cm.dense
@@ -74,6 +75,7 @@ def get_colormap_for_variable(variable: str):
         return cmocean.cm.deep
     # Default to the Ice colormap.
     return cmocean.cm.ice
+
 
 def create_image(
     dataset: np.ndarray,
@@ -89,7 +91,7 @@ def create_image(
     """
     image = img.new(mode="RGBA", size=(output_dim_x, output_dim_y), color=(0, 0, 0, 0))
     cmap = get_colormap_for_variable(variable)
-    #cmap = get_colormap(cm_name)
+    # cmap = get_colormap(cm_name)
     for x in range(output_dim_x):
         for y in range(output_dim_y):
             value = dataset[x][y]

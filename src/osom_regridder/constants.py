@@ -9,8 +9,8 @@ LON_E = -69.96
 LAT_N = 41.9
 LAT_S = 40.5
 
-default_height = 160 * 4
-default_width = 260 * 4
+default_height = 160 * 20
+default_width = 260 * 20
 
 
 class OSOMVariables(str, Enum):
