@@ -7,6 +7,8 @@ authors = [
 description = "Transforms OSOM data from an internal grid system to a lat/lon grid."
 readme = "README.md"
 dependencies = [
+    "cmocean>=4.0.3",
+    "gdal[numpy]==3.12.2",
     "netcdf4>=1.7.3",
     "numpy>=2.3.5",
     "pillow>=12.0.0",
