@@ -31,7 +31,7 @@ def regrid_at_timepoint(
     surface_or_bottom: Annotated[
         SurfaceOrBottom, typer.Option()
     ] = SurfaceOrBottom.SURFACE,
-    timepoint: Annotated[int, typer.Option(help="Days since model inception.")] = 1,
+    timepoint: Annotated[int, typer.Option(help="Timepoint in day (starting at midnight).")] = 1,
     height: Annotated[int, typer.Option()] = default_height,
     width: Annotated[int, typer.Option()] = default_width,
 ):
@@ -67,14 +67,19 @@ def regrid(
 
 
 @app.command()
-def display(
+def regrid_to_image(
     regridded_data_path: str,
     variable: Annotated[OSOMVariables, typer.Option()] = OSOMVariables.TEMP,
+    datatset_min: Annotated[float, typer.Option()] = -float('inf'),
+    dataset_max: Annotated[float, typer.Option()] = float('inf'),
 ):
     dataset = import_regridded_dataset(regridded_data_path, variable)
     width, height = dataset.shape
-    dataset_min, dataset_max = compute_dataset_bounds(dataset)
-    image = create_image(dataset, width, height, variable, dataset_min, dataset_max)
+    computed_min, computed_max = compute_dataset_bounds(dataset)
+    image_min = computed_min if datatset_min == -float('inf') else datatset_min
+    image_max = computed_max if datatset_max == -float('inf') else datatset_max
+
+    image = create_image(dataset, width, height, variable, image_min, image_max)
     # Use the input path but rename to change the extension .tif
     output_path = Path("out/") / (Path(regridded_data_path).stem + ".tif")
     print("Saving regridded image to", output_path)
