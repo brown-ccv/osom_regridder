@@ -8,14 +8,14 @@ description = "Transforms OSOM data from an internal grid system to a lat/lon gr
 readme = "README.md"
 dependencies = [
     "cmocean>=4.0.3",
-    "gdal[numpy]==3.12.2",
+    "gdal[numpy]==3.11",
     "netcdf4>=1.7.3",
-    "numpy>=2.3.5",
+    "numpy==2.3.1",
     "pillow>=12.0.0",
     "scipy>=1.17.0",
     "typer>=0.20.0",
 ]
-requires-python = ">=3.11"
+requires-python = "3.11"
 
 [project.scripts]
 osom_regridder = "osom_regridder.__main__:app"
