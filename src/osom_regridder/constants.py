@@ -19,6 +19,7 @@ class OSOMVariables(str, Enum):
     ZETA = "zeta"
     UBAR_EAST = "ubar_eastward"
     UBAR_WEST = "ubar_westward"
+    KINETIC_ENERGY = "AKv"
 
 
 class SurfaceOrBottom(str, Enum):

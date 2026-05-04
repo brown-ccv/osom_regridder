@@ -67,6 +67,8 @@ def get_colormap_for_variable(variable: str):
         return cmocean.cm.haline
     # if variable == OSOMVariables.ZETA:
     #    pass
+    if variable == OSOMVariables.KINETIC_ENERGY:
+        return cmocean.cm.speed
     if variable == OSOMVariables.UBAR_EAST:
         return cmocean.cm.dense
     if variable == OSOMVariables.UBAR_WEST:

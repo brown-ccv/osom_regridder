@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def compute_dataset_bounds(dataset: np.ndarray) -> Tuple[float, float]:
+def compute_dataset_bounds(dataset: np.ndarray) -> tuple[float, float]:
     """
     Determines the minimum and maximum values of the processed dataset.
 
