@@ -134,6 +134,5 @@ def compute_dataset_bounds(
         )
         print(dataset_min, dataset_max)
 
-
 if __name__ == "__main__":
     app()

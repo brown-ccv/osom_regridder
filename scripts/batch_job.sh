@@ -4,7 +4,9 @@
 #SBATCH -t 4:00:00
 #SBATCH -J JOBNAME
 
+module load gdal
 module load python/3.11
+rm -rf .venv
 python -m pip install uv
 python -m uv venv 
 source .venv/bin/activate
