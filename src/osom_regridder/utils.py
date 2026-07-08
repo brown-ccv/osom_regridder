@@ -1,3 +1,4 @@
+import datetime as dt
 import numpy as np
 
 
@@ -40,3 +41,27 @@ def normalize_linear(
     return (
         (output_scale_max - output_scale_min) * standard_normalization
     ) + output_scale_min
+
+
+def compute_timepoint_from_datetime(timestamp: dt.datetime):
+    """
+    Utility function that will determine the number of 1.5
+    hour timesteps a given timestamp is from the start of
+    the year in which the timestamp occurred.
+
+    Parameters:
+        timestmp (dt.dateime): Timestamp under transformation
+
+    Returns:
+        int: The number of timesteps since the new year.
+    """
+    delta_since_new_year = timestamp - dt.datetime.fromisoformat(
+        f"{timestamp.year}-01-01T00:00"
+    )
+    # Each day contains 16 timesteps. Add this with the number of
+    # hours in the remaining day divided by 1.5 (rounded) to
+    # determine the number of timesteps in the delta.
+    timestep = (delta_since_new_year.days * 16) + round(
+        delta_since_new_year.seconds / (60 * 60) / 1.5
+    )
+    return timestep

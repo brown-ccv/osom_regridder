@@ -9,10 +9,12 @@ Functions:
 
 """
 
+import netCDF4 as nc
 import numpy as np
 from scipy.interpolate import griddata
 
 from .constants import LON_W, LON_E, LAT_N, LAT_S
+from .utils import compute_timepoint_from_datetime
 
 
 def create_meshgrid(
@@ -86,7 +88,9 @@ def grid_transform(
 
 def regrid_timepoint(
     grid: tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray],
-    dataset: np.ndarray,
+    dataset: nc.Dataset,
+    variable: str,
+    surface_or_bottom: str,
     dimensions: tuple[int, int],
     timepoint: int,
 ) -> np.ndarray:
@@ -96,6 +100,8 @@ def regrid_timepoint(
     Parameters:
         grid (tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]): Grid information -- output of file_input.import_grid
         dataset (np.ndarray): Dataset to be processed.
+        variable (str): Variable being regridded.
+        surface_or_bottom (str): Variable depth (combined with `variable`).
         dimensions (tuple[int, int]): Output dimensions in width (longitude) / height (latitude)
         timepoint (int): Timepoint to be processed (index into processed dataset)
 
@@ -105,7 +111,7 @@ def regrid_timepoint(
     lat, lon, mask, bathymetry = grid
     width, height = dimensions
     meshgrid = create_meshgrid(width, height, LON_W, LON_E, LAT_N, LAT_S)
-    data_at_timepoint = dataset[timepoint]
+    data_at_timepoint = dataset.variable[f"{variable}{surface_or_bottom}"][timepoint]
     regridded_data = grid_transform(lon, lat, data_at_timepoint, meshgrid, mask)
     return regridded_data
 
@@ -135,3 +141,42 @@ def regrid_dataset(
         regridded_data = grid_transform(lon, lat, dataset[timepoint], meshgrid, mask)
         output_dataset[timepoint] = regridded_data
     return output_dataset
+
+
+def batch_regrid(
+    grid: tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray],
+    dataset: nc.Dataset,
+    variables: list[str],
+    timepoints: list[str],
+    dimensions: tuple[int, int],
+) -> dict[str, dict[str, np.ndarray]]:
+    """
+    Helper function to regrid a dataset for a given set of variables and timepoints.
+
+    Parameters:
+        grid (tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]): Grid information -- output of file_input.import_grid
+        dataset (np.ndarray): Dataset to be processed.
+        varaibles (list[str]): List of variables to process timepoints for.
+        timepoints (list[str]): List of timepoints in ISO format to be regridded.
+        dimensions (tuple[int, int]): Output dimensions in width (longitude) / height (latitude)
+
+    Returns:
+        dict[str, dict[str, np.ndarray]]: Nested dictionaries containing variable and timestamp information for seperate regrids
+    """
+    lat, lon, mask, bathymetry = grid
+    width, height = dimensions
+    meshgrid = create_meshgrid(width, height, LON_W, LON_E, LAT_N, LAT_S)
+    # Note (AM): There's a chance this might be more performant if you pre-allocate
+    # an ndarray and return it alongside a python list of variable / timepoint pairs,
+    # such that metadata[index] and regridded_data[index] gave you metadata and data
+    # for each regrid.
+    regridded_data = {}
+    for variable in variables:
+        data_for_variable = dataset.variables[variable]
+        regridded_data[variable] = {}
+        for timepoint in timepoints:
+            index = compute_timepoint_from_datetime(timepoint)
+            regridded_data[variable][timepoint] = grid_transform(
+                lon, lat, data_for_variable[index], meshgrid, mask
+            )
+    return regridded_data

@@ -1,5 +1,4 @@
 import netCDF4 as nc
-import numpy as np
 from typing import Tuple
 
 
@@ -17,19 +16,13 @@ def import_grid(
     return (lat, lon, mask, bathymetry)
 
 
-def import_dataset(
-    dataset_path: str, variable: str, surface_or_bottom: str
-) -> np.ndarray:
+def import_dataset(dataset_path: str) -> nc.Dataset:
     """
-    Extracts data from a raw OSOM data file for a specific variable
-    at *all* time points.
+    Extracts data from a processed OSOM data file.
     """
     dataset = nc.Dataset(dataset_path)
-    if surface_or_bottom == "bottom":
-        return dataset.variables[variable][:, 0, :, :]
-    else:
-        # Surface data
-        return dataset.variables[variable][:, -1, :, :]
+    variable_id = f"{variable}{surface_or_bottom}"
+    return dataset.variables[variable_id][:]
 
 
 def import_regridded_dataset(dataset_path: str, variable: str) -> np.ndarray:
