@@ -65,14 +65,12 @@ def get_colormap_for_variable(variable: str):
         return cmocean.cm.thermal
     if variable == OSOMVariables.SALT:
         return cmocean.cm.haline
-    # if variable == OSOMVariables.ZETA:
-    #    pass
     if variable == OSOMVariables.KINETIC_ENERGY:
         return cmocean.cm.speed
-    if variable == OSOMVariables.UBAR_EAST:
-        return cmocean.cm.dense
-    if variable == OSOMVariables.UBAR_WEST:
-        return cmocean.cm.dense
+    if variable == OSOMVariables.VELOCITY_E:
+        return cmocean.cm.speed
+    if variable == OSOMVariables.VELOCITY_N:
+        return cmocean.cm.speed
     if variable == "bathymetry":
         return cmocean.cm.deep
     # Default to the Ice colormap.
