@@ -23,7 +23,7 @@ from .file_input import (
 )
 from .georeference import make_mbtile_for_dir
 from .output import create_image, save_image, save_dataset_2d, save_dataset_3d
-from .regrid import regrid_timepoint, regrid_dataset
+from .regrid import regrid_timepoint, regrid_dataset, do_batch_regrid
 from .utils import compute_timepoint_from_datetime
 
 app = typer.Typer(no_args_is_help=True)
@@ -47,7 +47,7 @@ def regrid_at_timepoint(
     dataset = import_dataset(dataset_path, variable.value, surface_or_bottom.value)
     regridded = regrid_timepoint(
         grid,
-        dataset,
+        dataset.variables[f"{variable}{surface_or_bottom}"],
         (width, height),
         compute_timepoint_from_datetime(dt.datetime.fromisoformat(timepoint)),
     )
@@ -92,15 +92,16 @@ def batch_regrid(
     dataset = import_dataset(dataset_path)
     variables_list = variables.split(",")
     timepoints_list = timepoints.split(",")
-    regrid = batch_regrid(
+    regrid = do_batch_regrid(
         grid, dataset, variables_list, timepoints_list, (width, height)
     )
-    for variable in variables:
-        for timepoint in timepoints:
+    for variable in variables_list:
+        for timepoint in timepoints_list:
             output_path = Path("out/") / (
                 Path(dataset_path).stem + f"_{variable}@{timepoint}.nc"
             )
             print("Saving regridded dataset to", output_path)
+            regridded = regrid[variable][timepoint]
             save_dataset_2d(regridded, variable, output_path)
 
 

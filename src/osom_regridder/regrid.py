@@ -143,7 +143,7 @@ def regrid_dataset(
     return output_dataset
 
 
-def batch_regrid(
+def do_batch_regrid(
     grid: tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray],
     dataset: nc.Dataset,
     variables: list[str],
