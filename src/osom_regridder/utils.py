@@ -43,7 +43,7 @@ def normalize_linear(
     ) + output_scale_min
 
 
-def compute_timepoint_from_datetime(timestamp: str):
+def compute_timepoint_from_datestring(timestamp: str):
     """
     Utility function that will determine the number of 1.5
     hour timesteps a given timestamp is from the start of

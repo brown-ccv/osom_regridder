@@ -14,7 +14,7 @@ import numpy as np
 from scipy.interpolate import griddata
 
 from .constants import LON_W, LON_E, LAT_N, LAT_S
-from .utils import compute_timepoint_from_datetime
+from .utils import compute_timepoint_from_datestring
 
 
 def create_meshgrid(
@@ -90,7 +90,6 @@ def regrid_timepoint(
     grid: tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray],
     dataset: nc.Dataset,
     variable: str,
-    surface_or_bottom: str,
     dimensions: tuple[int, int],
     timepoint: int,
 ) -> np.ndarray:
@@ -101,46 +100,31 @@ def regrid_timepoint(
         grid (tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]): Grid information -- output of file_input.import_grid
         dataset (np.ndarray): Dataset to be processed.
         variable (str): Variable being regridded.
-        surface_or_bottom (str): Variable depth (combined with `variable`).
         dimensions (tuple[int, int]): Output dimensions in width (longitude) / height (latitude)
         timepoint (int): Timepoint to be processed (index into processed dataset)
 
     Returns:
         np.ndarray: Regridded dataset.
     """
-    lat, lon, mask, bathymetry = grid
-    width, height = dimensions
-    meshgrid = create_meshgrid(width, height, LON_W, LON_E, LAT_N, LAT_S)
-    data_at_timepoint = dataset.variable[f"{variable}{surface_or_bottom}"][timepoint]
-    regridded_data = grid_transform(lon, lat, data_at_timepoint, meshgrid, mask)
-    return regridded_data
+    data_for_variable_at_timepoint = dataset.variables[variable][timepoint]
+    return regrid_data(grid, data_for_variable_at_timepoint, dimensions)
+    # lat, lon, mask, bathymetry = grid
+    # width, height = dimensions
+    # meshgrid = create_meshgrid(width, height, LON_W, LON_E, LAT_N, LAT_S)
+    # regridded_data = grid_transform(lon, lat, data_at_timepoint, meshgrid, mask)
+    # return regridded_data
 
 
-def regrid_dataset(
+def regrid_data(
     grid: tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray],
-    dataset: np.ndarray,
+    data_slice: np.ndarray,
     dimensions: tuple[int, int],
-) -> np.ndarray:
-    """
-    Helper function to regrid an entire dataset
-
-    Parameters:
-        grid (tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]): Grid information -- output of file_input.import_grid
-        dataset (np.ndarray): Dataset to be processed.
-        dimensions (tuple[int, int]): Output dimensions in width (longitude) / height (latitude)
-
-    Returns:
-        np.ndarray: Regridded dataset at all timepoints.
-    """
+):
     lat, lon, mask, bathymetry = grid
     width, height = dimensions
     meshgrid = create_meshgrid(width, height, LON_W, LON_E, LAT_N, LAT_S)
-    timepoints = dataset.shape[0]
-    output_dataset = np.zeros((timepoints, height, width))
-    for timepoint in range(timepoints):
-        regridded_data = grid_transform(lon, lat, dataset[timepoint], meshgrid, mask)
-        output_dataset[timepoint] = regridded_data
-    return output_dataset
+    regridded_data = grid_transform(lon, lat, data_slice, meshgrid, mask)
+    return regridded_data
 
 
 def do_batch_regrid(
@@ -175,8 +159,30 @@ def do_batch_regrid(
         data_for_variable = dataset.variables[variable]
         regridded_data[variable] = {}
         for timepoint in timepoints:
-            index = compute_timepoint_from_datetime(timepoint)
+            index = compute_timepoint_from_datestring(timepoint)
             regridded_data[variable][timepoint] = grid_transform(
                 lon, lat, data_for_variable[index], meshgrid, mask
             )
     return regridded_data
+
+
+def blur_timerange(
+    dataset: nc.Dataset, variable: str, time_min: str, time_max: str
+) -> np.ndarray:
+    """
+    Returns a single "timeslice" for a time range by averaging values contained
+    within the specified timerange. This processes only one variable at a time.
+
+    Parameters:
+        dataset (nd.Dataset): Ingested NetCDF dataset
+        variable (str): Variable being analyzed.
+        time_min (str): Minimum time bound
+        time_max (str): Maximum time bound
+
+    Returns:
+        np.ndarray: one variable / timeslice of data
+    """
+    timepoint_min = compute_timepoint_from_datestring(time_min)
+    timepoint_max = compute_timepoint_from_datestring(time_max)
+    data_range = dataset.variables[variable][timepoint_min : timepoint_max + 1]
+    return np.mean(data_range, axis=0)

@@ -12,57 +12,33 @@ LAT_S = 40.5
 default_height = 160 * 20
 default_width = 260 * 20
 
+default_write_path = "out/"
+
 
 class OSOMVariables(str, Enum):
-    TEMP = "WaterTemp"
-    SALT = "Salinity"
-    VELOCITY_E = "VelocityEastward"
-    VELOCITY_N = "VelocityNorthward"
-    KINETIC_ENERGY = "KineticEnergy"
+    SALINITY_BOTTOM = "SalinityBottom"
+    SALINITY_SURFACE = "SalinitySurface"
+    WATER_TEMPERATURE_BOTTOM = "WaterTempBottom"
+    WATER_TEMPERATURE_SURFACE = "WaterTempSurface"
+    SURFACE_HEIGHT = "SurfaceHeight"
+    VELOCITY_EASTWARD_BOTTOM = "VelocityEastwardBottom"
+    VELOCITY_EASTWARD_SURFACE = "VelocityEastwardSurface"
+    VELOCITY_NORTHWARD_BOTTOM = "VelocityNorthwardBottom"
+    VELOCITY_NORTHWARD_SURFACE = "VelocityNorthwardSurface"
+    KINETIC_ENERGY_BOTTOM = "KineticEnergyBottom"
+    KINETIC_ENERGY_SURFACE = "KineticEnergySurface"
 
 
-class SurfaceOrBottom(str, Enum):
-    SURFACE = "Surface"
-    BOTTOM = "Bottom"
-
-
-"""
-
-variables(dimensions):
-
-float32 SalinityBottom(ocean_time, eta_rho, xi_rho),
-float32 SalinitySurface(ocean_time, eta_rho, xi_rho),
-float32 WaterTempBottom(ocean_time, eta_rho, xi_rho),
-float32 WaterTempSurface(ocean_time, eta_rho, xi_rho),
-float32 SurfaceHeight(ocean_time, eta_rho, xi_rho),
-float32 VelocityEastwardBottom(ocean_time, eta_rho, xi_rho),
-float32 VelocityEastwardSurface(ocean_time, eta_rho, xi_rho),
-float32 VelocityNorthwardBottom(ocean_time, eta_rho, xi_rho),
-float32 VelocityNorthwardSurface(ocean_time, eta_rho, xi_rho),
-float32 KineticEnergyBottom(ocean_time, eta_rho, xi_rho),
-float32 KineticEnergySurface(ocean_time, eta_rho, xi_rho),
-
-float64 ocean_time(ocean_time)
-
-
-
-00. 00:00
-01. 01:30
-02. 03:00
-03. 04:30
-04. 06:00
-05. 07:30
-06. 09:00
-07. 10:30
-08. 12:00
-09. 13:30
-10. 15:00
-11. 16:30
-12. 18:00
-13. 19:30
-14. 21:00
-15. 22:30
-
-16. 24:00
-
-"""
+ALL_VARIABLES = [
+    OSOMVariables.SALINITY_BOTTOM,
+    OSOMVariables.SALINITY_SURFACE,
+    OSOMVariables.WATER_TEMPERATURE_BOTTOM,
+    OSOMVariables.WATER_TEMPERATURE_SURFACE,
+    OSOMVariables.SURFACE_HEIGHT,
+    OSOMVariables.VELOCITY_EASTWARD_BOTTOM,
+    OSOMVariables.VELOCITY_EASTWARD_SURFACE,
+    OSOMVariables.VELOCITY_NORTHWARD_BOTTOM,
+    OSOMVariables.VELOCITY_NORTHWARD_SURFACE,
+    OSOMVariables.KINETIC_ENERGY_BOTTOM,
+    OSOMVariables.KINETIC_ENERGY_SURFACE,
+]
