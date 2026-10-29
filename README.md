@@ -29,3 +29,7 @@ uv format
 ```bash
 uv build
 ```
+
+## Notes
+
+Python version 3.11 is, unfortunately, required for this project. Later version of GDAL caused large compilation issues.

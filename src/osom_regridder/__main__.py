@@ -36,7 +36,7 @@ app = typer.Typer(no_args_is_help=True)
 
 
 @app.command()
-def regrid_at_timepoint(
+def regrid(
     grid_path: str,
     dataset_path: str,
     variable: Annotated[OSOMVariables, typer.Option()] = OSOMVariables.SALINITY_BOTTOM,
@@ -182,14 +182,12 @@ def regrid_to_images(
     out: Annotated[str, typer.Option()] = default_write_path,
 ):
     for dataset_path in list(Path(dataset_dir).iterdir()):
-        print(dataset_path)
         output_path = Path(out) / (dataset_path.stem + ".tif")
         if output_path.exists():
             continue
         dataset = import_regridded_dataset(dataset_path, variable)
         width, height = dataset.shape
         image = create_image(dataset, width, height, variable, dataset_min, dataset_max)
-        print("Saving regridded image to", output_path)
         save_image(image, output_path)
 
 

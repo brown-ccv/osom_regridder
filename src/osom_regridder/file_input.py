@@ -21,8 +21,7 @@ def import_dataset(dataset_path: str) -> nc.Dataset:
     """
     Extracts data from a processed OSOM data file.
     """
-    dataset = nc.Dataset(dataset_path)
-    return dataset
+    return nc.Dataset(dataset_path)
 
 
 def import_regridded_dataset(dataset_path: str, variable: str) -> np.ndarray:

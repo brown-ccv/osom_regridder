@@ -10,9 +10,9 @@
 module load python/3.11
 module load gdal
 
-VARIABLES=(SurfaceHeight SalinityBottom SalinitySurface WaterTempBottom WaterTempSurface VelocityEastwardBottom VelocityEastwardSurface VelocityNorthwardBottom VelocityNorthwardSurface KineticEnergyBottom KineticEnergySurface)
-VARIABLE_INDEX=$SLURM_ARRAY_TASK_ID
-VARIABLE=${VARIABLES[$VARIABLE_INDEX]}
+###############################################################################
+################################ Constants ####################################
+###############################################################################
 
 RUN_ID="123456"
 
@@ -22,17 +22,15 @@ OUTPUT_DIR_DATA='data'
 OUTPUT_DIR_IMAGES='images'
 OUTPUT_DIR_TILES='tiles'
 
-function rebuild() {
-  # Create a Python environement and install the package into it.
+###############################################################################
+############################## Run Parameters #################################
+###############################################################################
 
-  rm -rf .venv
-  uv venv
-  source .venv/bin/activate
-  uv sync
-  uv build
-  uv pip install dist/osom_regridder-*.whl
+# Variables for Bounds computation / image creation.
 
-}
+VARIABLES=(SurfaceHeight SalinityBottom SalinitySurface WaterTempBottom WaterTempSurface VelocityEastwardBottom VelocityEastwardSurface VelocityNorthwardBottom VelocityNorthwardSurface KineticEnergyBottom KineticEnergySurface)
+VARIABLE_INDEX=$SLURM_ARRAY_TASK_ID
+VARIABLE=${VARIABLES[$VARIABLE_INDEX]}
 
 function setup_env() {
   source .venv/bin/activate

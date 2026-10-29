@@ -26,7 +26,7 @@ OUTPUT_DIR_IMAGES='images'
 OUTPUT_DIR_TILES='tiles'
 
 ###############################################################################
-############################## Run Paramters ##################################
+############################## Run Parameters #################################
 ###############################################################################
 
 # Variables for Bounds computation / image creation.
@@ -34,17 +34,6 @@ OUTPUT_DIR_TILES='tiles'
 VARIABLES=(SurfaceHeight SalinityBottom SalinitySurface WaterTempBottom WaterTempSurface VelocityEastwardBottom VelocityEastwardSurface VelocityNorthwardBottom VelocityNorthwardSurface KineticEnergyBottom KineticEnergySurface)
 VARIABLE_INDEX=$SLURM_ARRAY_TASK_ID
 VARIABLE=${VARIABLES[$VARIABLE_INDEX]}
-
-function reset() {
-  # Create a Python environement and install the package into it.
-
-  rm -rf .venv
-  uv venv
-  source .venv/bin/activate
-  uv sync
-  uv build
-  uv pip install dist/osom_regridder-*.whl
-}
 
 function setup_env() {
   source .venv/bin/activate
@@ -61,9 +50,6 @@ function main() {
   echo "$VARIABLE"
   
   python3 -m osom_regridder batch-compute-bounds $VARIABLE $OUTPUT_DIR_TMP/$OUTPUT_DIR_DATA/$VARIABLE > bounds-$VARIABLE.txt
-
-  # Remove the data file
-  rm $OUTPUT_DIR_TMP/$DATA_FILE
 
   clean_env
 }

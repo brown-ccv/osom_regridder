@@ -23,17 +23,6 @@ OUTPUT_DIR_DATA='data'
 OUTPUT_DIR_IMAGES='images'
 OUTPUT_DIR_TILES='tiles'
 
-function reset() {
-  # Create a Python environement and install the package into it.
-
-  rm -rf .venv
-  uv venv
-  source .venv/bin/activate
-  uv sync
-  uv build
-  uv pip install dist/osom_regridder-*.whl
-}
-
 function setup_env() {
   source .venv/bin/activate
 }

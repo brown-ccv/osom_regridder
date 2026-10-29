@@ -1,8 +1,8 @@
 #!/bin/bash
 #SBATCH -N 1
-#SBATCH --mem=32G
-#SBATCH -t 4:00:00
-#SBATCH -J OsomRegridderRegridIreneTiles
+#SBATCH --mem=100G
+#SBATCH -t 1-00:00:00
+#SBATCH -J OsomRegridderRegridTiles
 #SBATCH --array=2005-2022
 
 # SBATCH Array for each day for Irene Run: --array=27-30
@@ -28,7 +28,7 @@ OUTPUT_DIR_IMAGES='images'
 OUTPUT_DIR_TILES='tiles'
 
 ###############################################################################
-############################## Run Paramters ##################################
+############################## Run Parameters #################################
 ###############################################################################
 
 DATA_FILE="${YEAR}_surf_his.nc"
@@ -40,25 +40,14 @@ TIMEPOINTS=$IRENE_TIMEPOINTS
 
 # Year for Full Model Run
 
-YEAR=$SLURM_ARRAY_TASK_ID
+# YEAR=$SLURM_ARRAY_TASK_ID
 
 # Date composition for Irene Model Run:
 
-# YEAR="2011"
-# MONTH="08"
-# DAY=$SLURM_ARRAY_TASK_ID
-# DATE="${YEAR}-${MONTH}-${DAY}"
-
-function reset() {
-  # Create a Python environement and install the package into it.
-
-  rm -rf .venv
-  uv venv
-  source .venv/bin/activate
-  uv sync
-  uv build
-  uv pip install dist/osom_regridder-*.whl
-}
+YEAR="2011"
+MONTH="08"
+DAY=$SLURM_ARRAY_TASK_ID
+DATE="${YEAR}-${MONTH}-${DAY}"
 
 function setup_env() {
   source .venv/bin/activate

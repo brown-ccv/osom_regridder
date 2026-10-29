@@ -88,7 +88,7 @@ def get_colormap_for_variable(variable: str):
         return cmocean.cm.deep
     if variable == OSOMVariables.SURFACE_HEIGHT:
         return cmocean.cm.amp
-    # Default to the Ice colormap.
+    # Default to the Gray colormap.
     return cmocean.cm.gray
 
 
@@ -144,9 +144,7 @@ def save_image(image: Image, image_path: str) -> None:
 def save_gif(images_dir: str, output_path: str) -> None:
     image_files = list(Path(images_dir).iterdir())
     image_files.sort()
-    print("loading", len(image_files), "images...")
     images = [img.open(image_file) for image_file in image_files]
-    print("saving gif to", output_path)
     images[0].save(
         output_path,
         save_all=True,

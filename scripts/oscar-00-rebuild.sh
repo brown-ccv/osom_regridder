@@ -5,7 +5,7 @@
 #SBATCH -J OsomRegridderBuild
 
 # This script rebuilds the python project and installs it into the current 
-# virutal environment. This is used when you're making changes to the Python 
+# virtual environment. This is used when you're making changes to the Python 
 # code and are running array jobs with that changed code. You have to rebuild
 # the project first, and then start the array job, otherwise each array job 
 # will individually try and rebuild the project and some will fail because of

@@ -5,7 +5,7 @@
 #SBATCH -J OsomRegridderMakeImages
 #SBATCH --array=0-11
 
-# A script to turn a directory of regridded NetCDFs and bound files into images.
+# A script to turn a directory of regridded NetCDFs and files into images.
 
 module load python/3.11
 module load gdal
@@ -25,7 +25,7 @@ OUTPUT_DIR_IMAGES='images'
 OUTPUT_DIR_TILES='tiles'
 
 ###############################################################################
-############################## Run Paramters ##################################
+############################## Run Parameters #################################
 ###############################################################################
 
 # Variables for Bounds computation / image creation.
@@ -33,17 +33,6 @@ OUTPUT_DIR_TILES='tiles'
 VARIABLES=(SurfaceHeight SalinityBottom SalinitySurface WaterTempBottom WaterTempSurface VelocityEastwardBottom VelocityEastwardSurface VelocityNorthwardBottom VelocityNorthwardSurface KineticEnergyBottom KineticEnergySurface)
 VARIABLE_INDEX=$SLURM_ARRAY_TASK_ID
 VARIABLE=${VARIABLES[$VARIABLE_INDEX]}
-
-function reset() {
-  # Create a Python environement and install the package into it.
-
-  rm -rf .venv
-  uv venv
-  source .venv/bin/activate
-  uv sync
-  uv build
-  uv pip install dist/osom_regridder-*.whl
-}
 
 function setup_env() {
   source .venv/bin/activate
@@ -60,9 +49,6 @@ function main() {
   echo "$VARIABLE"
   
   python3 -m osom_regridder regrid-to-images --out $OUTPUT_DIR_TMP/$OUTPUT_DIR_IMAGES $VARIABLE -- $(cat bounds-$VARIABLE.txt) $OUTPUT_DIR_TMP/$OUTPUT_DIR_DATA/$VARIABLE
-
-  # Remove the data file
-  rm $OUTPUT_DIR_TMP/$DATA_FILE
 
   clean_env
 }
