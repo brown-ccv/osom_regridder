@@ -16,7 +16,7 @@ dependencies = [
     "typer>=0.20.0",
     "typing-extensions>=4.15.0",
 ]
-requires-python = ">=3.11"
+requires-python = "=3.11"
 
 [project.scripts]
 osom_regridder = "osom_regridder.__main__:app"

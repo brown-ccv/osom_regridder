@@ -1,1 +1,0 @@
-rsync -azvp --progress . amurph40@ssh.ccv.brown.edu:~/osom_regridder

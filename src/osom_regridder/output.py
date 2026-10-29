@@ -3,6 +3,7 @@ import netCDF4 as nc
 import cmocean
 import math
 
+from pathlib import Path
 from PIL import Image as img
 from PIL.Image import Image
 
@@ -61,22 +62,34 @@ def get_colormap(cm_name: str):
 
 
 def get_colormap_for_variable(variable: str):
-    if variable == OSOMVariables.TEMP:
+    if (
+        variable == OSOMVariables.WATER_TEMPERATURE_SURFACE
+        or variable == OSOMVariables.WATER_TEMPERATURE_BOTTOM
+    ):
         return cmocean.cm.thermal
-    if variable == OSOMVariables.SALT:
+    if (
+        variable == OSOMVariables.SALINITY_SURFACE
+        or variable == OSOMVariables.SALINITY_BOTTOM
+    ):
         return cmocean.cm.haline
-    # if variable == OSOMVariables.ZETA:
-    #    pass
-    if variable == OSOMVariables.KINETIC_ENERGY:
+    if (
+        variable == OSOMVariables.KINETIC_ENERGY_SURFACE
+        or variable == OSOMVariables.KINETIC_ENERGY_BOTTOM
+    ):
+        return cmocean.cm.amp
+    if (
+        variable == OSOMVariables.VELOCITY_EASTWARD_SURFACE
+        or variable == OSOMVariables.VELOCITY_EASTWARD_BOTTOM
+        or variable == OSOMVariables.VELOCITY_NORTHWARD_SURFACE
+        or variable == OSOMVariables.VELOCITY_NORTHWARD_BOTTOM
+    ):
         return cmocean.cm.speed
-    if variable == OSOMVariables.UBAR_EAST:
-        return cmocean.cm.dense
-    if variable == OSOMVariables.UBAR_WEST:
-        return cmocean.cm.dense
-    if variable == "bathymetry":
+    if variable == OSOMVariables.SURFACE_HEIGHT:
         return cmocean.cm.deep
-    # Default to the Ice colormap.
-    return cmocean.cm.ice
+    if variable == OSOMVariables.SURFACE_HEIGHT:
+        return cmocean.cm.amp
+    # Default to the Gray colormap.
+    return cmocean.cm.gray
 
 
 def create_image(
@@ -126,6 +139,19 @@ def save_image(image: Image, image_path: str) -> None:
         None: Image is written to disk.
     """
     image.save(image_path)
+
+
+def save_gif(images_dir: str, output_path: str) -> None:
+    image_files = list(Path(images_dir).iterdir())
+    image_files.sort()
+    images = [img.open(image_file) for image_file in image_files]
+    images[0].save(
+        output_path,
+        save_all=True,
+        append_images=images[1:],  # Add the rest of the images
+        duration=250,  # Duration in milliseconds per frame
+        loop=0,  # Loop count; 0 for infinite loop
+    )
 
 
 def save_dataset_2d(dataset: np.ndarray, variable: str, file_path: str) -> None:

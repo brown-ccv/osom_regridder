@@ -29,10 +29,13 @@ def make_mbtile(src: str, dst: str):
 
 def make_mbtile_for_dir(src_dir: str, dst_dir: str):
     dst_path = Path(dst_dir)
-    for src_file in Path(src_dir).iterdir():
+    src_files = list(Path(src_dir).iterdir())
+    for src_file_index in range(len(src_files)):
+        src_file = src_files[src_file_index]
         if src_file.is_file() and src_file.name.endswith(".tif"):
             print("Making .mbtiles for", src_file.name)
             dst_name = dst_path / (src_file.stem + ".mbtiles")
             make_mbtile(src_file, dst_name)
         else:
             print("Skipping", src_file.name)
+        print(src_file_index, "/", len(src_files))
